@@ -1,0 +1,7 @@
+Analyze the following two documents and provide the detailed structured report requested in the System Prompt. DO NOT use any external tools or functions.
+
+--- JOB DESCRIPTION ---
+{{ $json.text }}
+
+--- CANDIDATE RESUME ---
+{{ $json.text }}
