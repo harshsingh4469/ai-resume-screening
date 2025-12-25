@@ -1,0 +1,45 @@
+// Input: items[0].json.output (AI agent's text report)
+// Output: formatted HTML email body for the next email node
+
+return items.map(item => {
+  const outputText = item.json.output || "";
+
+  // Convert newlines and markdown-style bolds into HTML
+  let formatted = outputText
+    .replace(/\n/g, '<br>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/✅/g, '✅')
+    .replace(/⚠️/g, '⚠️')
+    .replace(/❌/g, '❌')
+    .replace(/🟢/g, '🟢')
+    .replace(/🔴/g, '🔴')
+    .replace(/🟡/g, '🟡')
+    .replace(/💡/g, '💡')
+    .replace(/🔍/g, '🔍');
+
+  // Create a professional recruiter email template
+  const htmlEmail = `
+  <div style="font-family: Arial, sans-serif; color: #222; line-height: 1.6; max-width: 700px; margin: auto; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px;">
+    <div style="text-align: center; border-bottom: 2px solid #007BFF; padding-bottom: 10px; margin-bottom: 20px;">
+      <h2 style="color: #007BFF; margin: 0;">AI Resume Analysis Report</h2>
+      <p style="font-size: 14px; color: #555;">Automated Resume Evaluation by AI Recruitment Analyst</p>
+    </div>
+
+    <div style="font-size: 15px;">
+      ${formatted}
+    </div>
+
+    <div style="margin-top: 30px; border-top: 1px solid #ddd; padding-top: 15px; color: #555; font-size: 13px;">
+      <p><strong>Note:</strong> This is an AI-generated analysis intended to assist recruiters in evaluating candidate-job fit. Please review findings before making hiring decisions.</p>
+      <p style="text-align: center; margin-top: 10px; color: #888;">Powered by <strong>AI Recruitment Analyst</strong> | Intelligent Resume Insights</p>
+    </div>
+  </div>
+  `;
+
+  return {
+    json: {
+      email_subject: "📊 AI Resume Analysis Report",
+      email_body: htmlEmail
+    }
+  };
+});
