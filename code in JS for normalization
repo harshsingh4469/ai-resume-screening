@@ -1,0 +1,52 @@
+// 1. Get email data and binary attachments
+const emailData = $input.item.json;
+const attachments = $input.item.binary || {};
+
+// 2. Try extracting body from 'text' or 'html'
+let bodyText = emailData.text || emailData.html || null;
+let fileType = 'txt';
+let mimeType = 'text/plain';
+
+// 3. Fallback: decode first attachment if no body found
+if (!bodyText && Object.keys(attachments).length > 0) {
+  const firstKey = Object.keys(attachments)[0];
+  const attachment = attachments[firstKey];
+
+  if (attachment && attachment.data) {
+    const buffer = Buffer.from(attachment.data, 'base64');
+    bodyText = buffer.toString('utf8');
+
+    mimeType = attachment.mimeType || 'text/plain';
+
+    // Infer file extension from MIME type
+    if (mimeType === 'application/pdf') fileType = 'pdf';
+    else if (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') fileType = 'docx';
+    else fileType = 'txt';
+  } else {
+    bodyText = 'No Text Body Found';
+  }
+}
+
+// 4. Clean subject and create filename
+const subject = emailData.subject || 'Email Body';
+const cleanSubject = subject.replace(/[^a-zA-Z0-9\s]/g, '').trim().substring(0, 40);
+const timestamp = new Date().getTime();
+const fileName = `${cleanSubject}_Body_${timestamp}.${fileType}`;
+
+// 5. Return output
+return [
+  {
+    json: {
+      fileName: fileName,
+      mimeType: mimeType,
+      fileDataKey: 'bodyFile',
+    },
+    binary: {
+      bodyFile: {
+        data: Buffer.from(bodyText || 'No Text Body Found', 'utf8').toString('base64'),
+        mimeType: mimeType,
+        fileName: fileName,
+      },
+    },
+  }
+];
